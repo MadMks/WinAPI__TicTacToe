@@ -151,6 +151,10 @@
   <ItemGroup>
     <ResourceCompile Include="WinAPI_TicTacToe_repository.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\..\..\..\downloads\bitmap1.bmp" />
+    <Image Include="..\..\..\..\..\..\..\Downloads\cross.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
