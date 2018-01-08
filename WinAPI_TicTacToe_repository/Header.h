@@ -24,4 +24,10 @@
 
 
 #include <windows.h>
+#include <time.h>
 #include "resource.h"
+
+enum {eComp, eUser} ePlayer;
+enum {eRound, eCross} eFigure;
+
+enum {eWalkComp, eWalkUser} eNowWalks;

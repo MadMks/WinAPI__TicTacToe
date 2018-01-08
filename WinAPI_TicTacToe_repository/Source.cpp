@@ -29,6 +29,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszCmdLine, int nCmd
 
 BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
+	srand(time(NULL));
+
 	static HWND hNewGame;
 	static HWND hWalkFirst;
 	static HWND hEasyHard;
@@ -45,6 +47,10 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	static UINT styleButton_xo = GetClassLong(hButton_xo[0], GCL_STYLE);*/
 	
 	//static HBRUSH whiteBrush;
+
+	static int randNumber;
+
+
 
 	switch (uMessage)
 	{
@@ -87,7 +93,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		CheckRadioButton(hWnd, IDC_RADIO_EasyLevel, IDC_RADIO_HardLevel, IDC_RADIO_EasyLevel);
 		// Изначально флажок "ходить первым" снят.
 		SendMessage(hWalkFirst, BM_SETCHECK, WPARAM(BST_UNCHECKED), NULL);
-
+		// Первым ходит "Комп".
+		eNowWalks = eWalkComp;		// TODO ???
 
 		// Пишем текст.
 		SetWindowText(hWnd, L"Крестики нолики");
@@ -101,6 +108,9 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		return TRUE;
 
 	case WM_COMMAND:
+		/*========================================================*/
+		/*========================================================*/
+		/*========================================================*/
 		// Новая игра.
 		if (LOWORD(wParam) == IDC_BUTTON_NewGame)
 		{
@@ -117,8 +127,59 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i), TRUE);
 			}
 
+			// У первого игрока всегда "х".
+			eFigure = eCross;
+
+			// Проверить состояние флажка "ходить первым".
+			// Если флажок установлен
+			if (SendMessage(hWalkFirst, BM_GETCHECK, NULL, NULL) == BST_CHECKED)
+			{
+				// То ход игрока.
+				// (ждем нажатия).	// TODO delete
+				eNowWalks = eWalkUser;
+				SetWindowText(hWnd, L"test Ход игрока");	// TODO delete
+
+				SetWindowText(hText, L"Ваш ход");
+			}
+			// Иначе если не установлен
+			else
+			{
+				// То ход Компа.
+				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
+				SendMessage(
+					//GetDlgItem(hWnd, LOWORD(wParam)),
+					GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
+					BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
+					LPARAM(hCross));
+
+				// Меняем игрока
+				eNowWalks = eWalkUser;
+				// Меняем фигуру
+				eFigure = eRound;
+
+				// рандом или алгоритм
+				// ход компа	// TODO algoritm
+				SetWindowText(hWnd, L"test Ход компа");	// TODO delete
+			}
+
+
+			// Обнуляем фигуру (по умолчанию при новой игре
+			// первым ходит комп).
+
+
+			// 
+			//if (eNowWalks == eWalkUser)
+			//{
+			//	// значит user ходит "x"
+			//	eFigure = eCross;
+			//}
+
+
 			// ??? метод игры1 игры2?
 		}
+		/*========================================================*/
+		/*========================================================*/
+		/*========================================================*/
 		// Легкая сложность.
 		else if (LOWORD(wParam) == IDC_RADIO_EasyLevel)
 		{
@@ -134,26 +195,118 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		// User ходит первым (крестиками).
 		else if (LOWORD(wParam) == IDC_CHECK_WalkFirst)
 		{
-			MessageBox(hWnd, L"Нажал флажок \"Ходить первым\"",
-				L"работает", MB_OK | MB_ICONINFORMATION);
-		}
+			//eNowWalks = eWalkUser;
 
+			// проверяем состояние
+			//eFigure = eCross;
+
+			/*MessageBox(hWnd, L"Нажал флажок \"Ходить первым\"",
+				L"работает", MB_OK | MB_ICONINFORMATION);*/
+		}
+		/*========================================================*/
+		/*========================================================*/
+		/*========================================================*/
 
 		// При нажатии на игровое поле.
 		//if (LOWORD(wParam) == IDC_BUTTON_xo_1)
 		if (LOWORD(wParam) >= IDC_BUTTON_xo_1 && LOWORD(wParam) <= IDC_BUTTON_xo_9)
 		{
+			
+			if (eNowWalks == eWalkUser)
+			{
 
-			// Ставим "крестик".
-			SendMessage(
-				GetDlgItem(hWnd, LOWORD(wParam)),
-				BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
-				LPARAM(hCross));
-			// Ставим "нолик".
-			// TODO код для нолика...
+				// Ставим фигуру.
+				if (eFigure == eCross)
+				{
+					// Ставим "крестик".
+					SendMessage(
+						GetDlgItem(hWnd, LOWORD(wParam)),
+						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
+						LPARAM(hCross));
 
-			// Делаем кнопку неактивной.
-			EnableWindow(GetDlgItem(hWnd, LOWORD(wParam)), NULL);
+					eFigure = eRound;	// меняем фигуру.
+				}
+				else if (eFigure == eRound)
+				{
+					// Ставим "нолик".
+					SendMessage(
+						GetDlgItem(hWnd, LOWORD(wParam)),
+						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
+						LPARAM(hRound));
+
+					eFigure = eCross;	// меняем фигуру.
+				}
+
+				// Ход игрока
+				// и меняем игрока...
+
+				// Ходит Комп
+				/*if (eNowWalks == eWalkComp)
+				{
+					// Вручную и рандомно ставим текущую фигуру
+					//
+
+					eNowWalks = eWalkUser;
+
+					SetWindowText(hText, L"Ваш ход");
+				}
+				else*/
+
+				eNowWalks = eWalkComp;
+
+				SetWindowText(hText, L"Ходит комп");
+
+				// Делаем кнопку неактивной.
+				EnableWindow(GetDlgItem(hWnd, LOWORD(wParam)), NULL);
+			}
+			
+
+			
+
+			/*====================================================================================*/
+			// Например жмет Комп
+			if (eNowWalks == eWalkComp)
+			{
+				randNumber = (rand() % 9);
+
+				// проверка ранд номера - если есть то заменить!	// TODO re
+
+
+				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
+
+				// Ставим фигуру.
+				if (eFigure == eCross)
+				{
+					// Ставим "крестик".
+					SendMessage(
+						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
+						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
+						LPARAM(hCross));
+
+					eFigure = eRound;	// меняем фигуру.
+				}
+				else if (eFigure == eRound)
+				{
+					// Ставим "нолик".
+					SendMessage(
+						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
+						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
+						LPARAM(hRound));
+
+					eFigure = eCross;	// меняем фигуру.
+				}
+
+				// Меняем игрока
+				eNowWalks = eWalkUser;
+				// Сообщение для след игрока
+				SetWindowText(hText, L"Ваш ход");
+
+				// Делаем кнопку неактивной.
+				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber), NULL);	// TODO 5 заменить на переменную randShot
+			}
+			/*======================================================================================*/
+
+
 
 		}
 
