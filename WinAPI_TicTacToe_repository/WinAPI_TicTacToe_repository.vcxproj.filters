@@ -36,7 +36,7 @@
     <Image Include="..\..\..\..\..\..\..\Downloads\cross.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\..\..\..\..\..\..\downloads\bitmap1.bmp">
+    <Image Include="..\..\..\..\..\..\..\Downloads\round.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
