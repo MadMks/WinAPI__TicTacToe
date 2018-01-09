@@ -1,7 +1,7 @@
-#include "Header.h"
+п»ї#include "Header.h"
 
 
-// Прототип функции DlgProc.
+// РџСЂРѕС‚РѕС‚РёРї С„СѓРЅРєС†РёРё DlgProc.
 BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
 BOOL AllArePressed(int isPressed[]);
@@ -12,14 +12,14 @@ BOOL CheckOfAWinningCombination();
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszCmdLine, int nCmdShow)
 {
 
-	MSG msg;	// структура.
-				// создаём главное окно приложения на основе немодального диалога
+	MSG msg;	// СЃС‚СЂСѓРєС‚СѓСЂР°.
+				// СЃРѕР·РґР°С‘Рј РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ РїСЂРёР»РѕР¶РµРЅРёСЏ РЅР° РѕСЃРЅРѕРІРµ РЅРµРјРѕРґР°Р»СЊРЅРѕРіРѕ РґРёР°Р»РѕРіР°
 	HWND hDialog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DlgProc);
-	// Отображаем окно	
+	// РћС‚РѕР±СЂР°Р¶Р°РµРј РѕРєРЅРѕ	
 	ShowWindow(hDialog, nCmdShow);
 
 
-	//Запускаем цикл обработки сообщений
+	//Р—Р°РїСѓСЃРєР°РµРј С†РёРєР» РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№
 	while (GetMessage(&msg, 0, 0, 0))
 	{
 		TranslateMessage(&msg);
@@ -43,7 +43,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	static HWND hButton_xo[9];
 
 	static HBITMAP hCross, hRound;
-	static HBITMAP hEmpty;	// handle не существующей картинки.
+	static HBITMAP hEmpty;	// handle РЅРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ РєР°СЂС‚РёРЅРєРё.
 
 	static int randNumber;
 
@@ -56,46 +56,46 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	switch (uMessage)
 	{
 	case WM_CLOSE:
-		// Закрываем немодальный диалог.
-		DestroyWindow(hWnd); // разрушаем окно.
-		PostQuitMessage(0); // останавливаем цикл обработки сообщений.
+		// Р—Р°РєСЂС‹РІР°РµРј РЅРµРјРѕРґР°Р»СЊРЅС‹Р№ РґРёР°Р»РѕРі.
+		DestroyWindow(hWnd); // СЂР°Р·СЂСѓС€Р°РµРј РѕРєРЅРѕ.
+		PostQuitMessage(0); // РѕСЃС‚Р°РЅР°РІР»РёРІР°РµРј С†РёРєР» РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№.
 		return TRUE;
 
 
 	case WM_INITDIALOG:
-		// Получаем Handle.
+		// РџРѕР»СѓС‡Р°РµРј Handle.
 		hNewGame = GetDlgItem(hWnd, IDC_BUTTON_NewGame);
 		hWalkFirst = GetDlgItem(hWnd, IDC_CHECK_WalkFirst);
 		hText = GetDlgItem(hWnd, IDC_STATIC_text);
-		// Получаем Handle радиоКнопки.					// TODO delete !?
-		//hEasyHard = GetDlgItem(hWnd, IDC_RADIO_EasyLevel);	// TODO если CheckRadioButton то наверно delete
-		// Получаем дескрипторы кнопок (хо).
+		// РџРѕР»СѓС‡Р°РµРј Handle СЂР°РґРёРѕРљРЅРѕРїРєРё.					// TODO delete !?
+		//hEasyHard = GetDlgItem(hWnd, IDC_RADIO_EasyLevel);	// TODO РµСЃР»Рё CheckRadioButton С‚Рѕ РЅР°РІРµСЂРЅРѕ delete
+		// РџРѕР»СѓС‡Р°РµРј РґРµСЃРєСЂРёРїС‚РѕСЂС‹ РєРЅРѕРїРѕРє (С…Рѕ).
 		/*hButton_xo_1 = GetDlgItem(hWnd, IDC_BUTTON_xo_1);*/	// TODO delete
 		for (int i = 0; i < 9; i++)
 		{
 			hButton_xo[i] = GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i);
-			// При запуске все кнопки не активны.
+			// РџСЂРё Р·Р°РїСѓСЃРєРµ РІСЃРµ РєРЅРѕРїРєРё РЅРµ Р°РєС‚РёРІРЅС‹.
 			EnableWindow(hButton_xo[i], NULL);	// TODO FALSE
 			
 		}
 
-		// Загружаем bmp "крестик", "нолик" и "пусто" и получаем их Handle.
+		// Р—Р°РіСЂСѓР¶Р°РµРј bmp "РєСЂРµСЃС‚РёРє", "РЅРѕР»РёРє" Рё "РїСѓСЃС‚Рѕ" Рё РїРѕР»СѓС‡Р°РµРј РёС… Handle.
 		hCross = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP_x));
 		hRound = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP_o));
 		//hEmpty = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP_backg));	// TODO delete
 
 
-		// Изначально выбран "легкий уровень".
+		// РР·РЅР°С‡Р°Р»СЊРЅРѕ РІС‹Р±СЂР°РЅ "Р»РµРіРєРёР№ СѓСЂРѕРІРµРЅСЊ".
 		CheckRadioButton(hWnd, IDC_RADIO_EasyLevel, IDC_RADIO_HardLevel, IDC_RADIO_EasyLevel);
-		// Изначально флажок "ходить первым" снят.
+		// РР·РЅР°С‡Р°Р»СЊРЅРѕ С„Р»Р°Р¶РѕРє "С…РѕРґРёС‚СЊ РїРµСЂРІС‹Рј" СЃРЅСЏС‚.
 		SendMessage(hWalkFirst, BM_SETCHECK, WPARAM(BST_UNCHECKED), NULL);
-		// Первым ходит "Комп".
-		eNowWalks = eWalkComp;		// TODO ??? - просмотрел код = особо не нужно.
+		// РџРµСЂРІС‹Рј С…РѕРґРёС‚ "РљРѕРјРї".
+		eNowWalks = eWalkComp;		// TODO ??? - РїСЂРѕСЃРјРѕС‚СЂРµР» РєРѕРґ = РѕСЃРѕР±Рѕ РЅРµ РЅСѓР¶РЅРѕ.
 		
 
-		// Пишем текст.
-		SetWindowText(hWnd, L"Крестики нолики");
-		SetWindowText(hText, L"Для начала игры нажмите \"Новая игра\"");
+		// РџРёС€РµРј С‚РµРєСЃС‚.
+		SetWindowText(hWnd, L"РљСЂРµСЃС‚РёРєРё РЅРѕР»РёРєРё");
+		SetWindowText(hText, L"Р”Р»СЏ РЅР°С‡Р°Р»Р° РёРіСЂС‹ РЅР°Р¶РјРёС‚Рµ \"РќРѕРІР°СЏ РёРіСЂР°\"");
 		
 	
 
@@ -106,198 +106,198 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		/*========================================================*/
 		/*========================================================*/
 		/*========================================================*/
-		// Новая игра.
+		// РќРѕРІР°СЏ РёРіСЂР°.
 		if (LOWORD(wParam) == IDC_BUTTON_NewGame)
 		{
-			// Обнуляем игровые кнопки.
+			// РћР±РЅСѓР»СЏРµРј РёРіСЂРѕРІС‹Рµ РєРЅРѕРїРєРё.
 			for (int i = 0; i < 9; i++)
 			{
-				// Отправляем на кнопки картинку "которую не загружали".
+				// РћС‚РїСЂР°РІР»СЏРµРј РЅР° РєРЅРѕРїРєРё РєР°СЂС‚РёРЅРєСѓ "РєРѕС‚РѕСЂСѓСЋ РЅРµ Р·Р°РіСЂСѓР¶Р°Р»Рё".
 				SendMessage(
 					GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i),
 					BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 					LPARAM(hEmpty));
 
-				// Делаем кнопки активными.
+				// Р”РµР»Р°РµРј РєРЅРѕРїРєРё Р°РєС‚РёРІРЅС‹РјРё.
 				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i), TRUE);
 
-				// Изначально кнопки не нажаты.
+				// РР·РЅР°С‡Р°Р»СЊРЅРѕ РєРЅРѕРїРєРё РЅРµ РЅР°Р¶Р°С‚С‹.
 				//isPressed[i] = FALSE;
 				// TODO NewNew
 				aPressed[i] = eeEmpty;
 			}
 
-			// У первого игрока всегда "х".
+			// РЈ РїРµСЂРІРѕРіРѕ РёРіСЂРѕРєР° РІСЃРµРіРґР° "С…".
 			eeFigure = eeCross;
 
 			isAllArePressed = FALSE;
 
-			// Проверить состояние флажка "ходить первым".
-			// Если флажок установлен
+			// РџСЂРѕРІРµСЂРёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ С„Р»Р°Р¶РєР° "С…РѕРґРёС‚СЊ РїРµСЂРІС‹Рј".
+			// Р•СЃР»Рё С„Р»Р°Р¶РѕРє СѓСЃС‚Р°РЅРѕРІР»РµРЅ
 			if (SendMessage(hWalkFirst, BM_GETCHECK, NULL, NULL) == BST_CHECKED)
 			{
-				// То ход игрока.
-				// (ждем нажатия).	// TODO delete
+				// РўРѕ С…РѕРґ РёРіСЂРѕРєР°.
+				// (Р¶РґРµРј РЅР°Р¶Р°С‚РёСЏ).	// TODO delete
 				eNowWalks = eWalkUser;
-				SetWindowText(hWnd, L"test Ход игрока");	// TODO delete
+				SetWindowText(hWnd, L"test РҐРѕРґ РёРіСЂРѕРєР°");	// TODO delete
 
-				SetWindowText(hText, L"Ваш ход");
+				SetWindowText(hText, L"Р’Р°С€ С…РѕРґ");
 			}
-			// Иначе если не установлен
+			// РРЅР°С‡Рµ РµСЃР»Рё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ
 			else
 			{
 
 				// -
-				// TODO - возможно можно будет убрато после рабочего кода "проверка победителя"
-				// Первый анализ - нужно оставить.
+				// TODO - РІРѕР·РјРѕР¶РЅРѕ РјРѕР¶РЅРѕ Р±СѓРґРµС‚ СѓР±СЂР°С‚Рѕ РїРѕСЃР»Рµ СЂР°Р±РѕС‡РµРіРѕ РєРѕРґР° "РїСЂРѕРІРµСЂРєР° РїРѕР±РµРґРёС‚РµР»СЏ"
+				// РџРµСЂРІС‹Р№ Р°РЅР°Р»РёР· - РЅСѓР¶РЅРѕ РѕСЃС‚Р°РІРёС‚СЊ.
 				// test
-				// проверим все ли нажаты
+				// РїСЂРѕРІРµСЂРёРј РІСЃРµ Р»Рё РЅР°Р¶Р°С‚С‹
 				if (!AllArePressed(aPressed)) {
-					// проверка ранд номера - если есть то заменить!	// TODO re
+					// РїСЂРѕРІРµСЂРєР° СЂР°РЅРґ РЅРѕРјРµСЂР° - РµСЃР»Рё РµСЃС‚СЊ С‚Рѕ Р·Р°РјРµРЅРёС‚СЊ!	// TODO re
 					///do
 					///{
 					///	randNumber = rand() % 9;
 					///} while (isPressed[randNumber] == TRUE);		// TODO (not) working !!!
 					
 					// TODO NewNew
-					// Если не все нажаты, то выберем новую кнопку рандомно
-					// пока не найдем "не нажатую".
+					// Р•СЃР»Рё РЅРµ РІСЃРµ РЅР°Р¶Р°С‚С‹, С‚Рѕ РІС‹Р±РµСЂРµРј РЅРѕРІСѓСЋ РєРЅРѕРїРєСѓ СЂР°РЅРґРѕРјРЅРѕ
+					// РїРѕРєР° РЅРµ РЅР°Р№РґРµРј "РЅРµ РЅР°Р¶Р°С‚СѓСЋ".
 					do
 					{
 						randNumber = rand() % 9;
 					} while (aPressed[randNumber] != eeEmpty);
 				}
 
-				// То ход Компа.
-				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
+				// РўРѕ С…РѕРґ РљРѕРјРїР°.
+				// РЎС‚Р°РІРёРј СЂР°РЅРґРѕРјРЅРѕ РёР»Рё РїРѕ Р°Р»РіРѕСЂРёС‚РјСѓ!	// TODO algoritm or random
 				SendMessage(
 					//GetDlgItem(hWnd, LOWORD(wParam)),
-					GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
+					GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 Р·Р°РјРµРЅРёС‚СЊ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ randShot
 					BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 					LPARAM(hCross));
-				// Запоминаем нажатую кнопку.
+				// Р—Р°РїРѕРјРёРЅР°РµРј РЅР°Р¶Р°С‚СѓСЋ РєРЅРѕРїРєСѓ.
 				///isPressed[randNumber] = TRUE;
 				// TODO NewNew
-				// Запоминаем нажатую кнопку.
+				// Р—Р°РїРѕРјРёРЅР°РµРј РЅР°Р¶Р°С‚СѓСЋ РєРЅРѕРїРєСѓ.
 				aPressed[randNumber] = eeCross;
 
-				// Делаем кнопку неактивной.
+				// Р”РµР»Р°РµРј РєРЅРѕРїРєСѓ РЅРµР°РєС‚РёРІРЅРѕР№.
 				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber), FALSE);
-				// Меняем игрока
+				// РњРµРЅСЏРµРј РёРіСЂРѕРєР°
 				eNowWalks = eWalkUser;
-				// Меняем фигуру
+				// РњРµРЅСЏРµРј С„РёРіСѓСЂСѓ
 				eeFigure = eeRound;
 
-				// рандом или алгоритм
-				// ход компа	// TODO algoritm
-				SetWindowText(hWnd, L"test Ход компа");	// TODO delete
+				// СЂР°РЅРґРѕРј РёР»Рё Р°Р»РіРѕСЂРёС‚Рј
+				// С…РѕРґ РєРѕРјРїР°	// TODO algoritm
+				SetWindowText(hWnd, L"test РҐРѕРґ РєРѕРјРїР°");	// TODO delete
 			}
 
 
-			// Обнуляем фигуру (по умолчанию при новой игре
-			// первым ходит комп).
+			// РћР±РЅСѓР»СЏРµРј С„РёРіСѓСЂСѓ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РїСЂРё РЅРѕРІРѕР№ РёРіСЂРµ
+			// РїРµСЂРІС‹Рј С…РѕРґРёС‚ РєРѕРјРї).
 
 
 			// 
 			//if (eNowWalks == eWalkUser)
 			//{
-			//	// значит user ходит "x"
+			//	// Р·РЅР°С‡РёС‚ user С…РѕРґРёС‚ "x"
 			//	eFigure = eCross;
 			//}
 
 
-			// ??? метод игры1 игры2?
+			// ??? РјРµС‚РѕРґ РёРіСЂС‹1 РёРіСЂС‹2?
 		}
 		/*========================================================*/
 		/*========================================================*/
 		/*========================================================*/
-		// Легкая сложность.
+		// Р›РµРіРєР°СЏ СЃР»РѕР¶РЅРѕСЃС‚СЊ.
 		else if (LOWORD(wParam) == IDC_RADIO_EasyLevel)
 		{
-			MessageBox(hWnd, L"Нажал радио \"Легкий уровень\"",
-				L"работает", MB_OK | MB_ICONINFORMATION);
+			MessageBox(hWnd, L"РќР°Р¶Р°Р» СЂР°РґРёРѕ \"Р›РµРіРєРёР№ СѓСЂРѕРІРµРЅСЊ\"",
+				L"СЂР°Р±РѕС‚Р°РµС‚", MB_OK | MB_ICONINFORMATION);
 		}
-		// Тяжелая сложность.
+		// РўСЏР¶РµР»Р°СЏ СЃР»РѕР¶РЅРѕСЃС‚СЊ.
 		else if (LOWORD(wParam) == IDC_RADIO_HardLevel)
 		{
-			MessageBox(hWnd, L"Нажал радио \"Сложный уровень\"",
-				L"работает", MB_OK | MB_ICONINFORMATION);
+			MessageBox(hWnd, L"РќР°Р¶Р°Р» СЂР°РґРёРѕ \"РЎР»РѕР¶РЅС‹Р№ СѓСЂРѕРІРµРЅСЊ\"",
+				L"СЂР°Р±РѕС‚Р°РµС‚", MB_OK | MB_ICONINFORMATION);
 		}
-		// User ходит первым (крестиками).
+		// User С…РѕРґРёС‚ РїРµСЂРІС‹Рј (РєСЂРµСЃС‚РёРєР°РјРё).
 		else if (LOWORD(wParam) == IDC_CHECK_WalkFirst)
 		{
 			//eNowWalks = eWalkUser;
 
-			// проверяем состояние
+			// РїСЂРѕРІРµСЂСЏРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ
 			//eFigure = eCross;
 
-			/*MessageBox(hWnd, L"Нажал флажок \"Ходить первым\"",
-				L"работает", MB_OK | MB_ICONINFORMATION);*/
+			/*MessageBox(hWnd, L"РќР°Р¶Р°Р» С„Р»Р°Р¶РѕРє \"РҐРѕРґРёС‚СЊ РїРµСЂРІС‹Рј\"",
+				L"СЂР°Р±РѕС‚Р°РµС‚", MB_OK | MB_ICONINFORMATION);*/
 		}
 		/*========================================================*/
 		/*========================================================*/
 		/*========================================================*/
 
-		// При нажатии на игровое поле.
+		// РџСЂРё РЅР°Р¶Р°С‚РёРё РЅР° РёРіСЂРѕРІРѕРµ РїРѕР»Рµ.
 		//if (LOWORD(wParam) == IDC_BUTTON_xo_1)
 		if (LOWORD(wParam) >= IDC_BUTTON_xo_1 && LOWORD(wParam) <= IDC_BUTTON_xo_9)
 		{
-			// Если ходит User.
+			// Р•СЃР»Рё С…РѕРґРёС‚ User.
 			if (eNowWalks == eWalkUser)
 			{
 
-				// Ставим фигуру.
+				// РЎС‚Р°РІРёРј С„РёРіСѓСЂСѓ.
 				if (eeFigure == eeCross)
 				{
-					// Ставим "крестик".
+					// РЎС‚Р°РІРёРј "РєСЂРµСЃС‚РёРє".
 					SendMessage(
 						GetDlgItem(hWnd, LOWORD(wParam)),
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hCross));
-					// Запоминаем нажатую кнопку.
+					// Р—Р°РїРѕРјРёРЅР°РµРј РЅР°Р¶Р°С‚СѓСЋ РєРЅРѕРїРєСѓ.
 					///isPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = TRUE;
 
 					// TODO NewNew
 					aPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = eeCross;
 
-					eeFigure = eeRound;	// меняем фигуру.
+					eeFigure = eeRound;	// РјРµРЅСЏРµРј С„РёРіСѓСЂСѓ.
 				}
 				else if (eeFigure == eeRound)
 				{
-					// Ставим "нолик".
+					// РЎС‚Р°РІРёРј "РЅРѕР»РёРє".
 					SendMessage(
 						GetDlgItem(hWnd, LOWORD(wParam)),
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hRound));
-					// Запоминаем нажатую кнопку.
+					// Р—Р°РїРѕРјРёРЅР°РµРј РЅР°Р¶Р°С‚СѓСЋ РєРЅРѕРїРєСѓ.
 					///isPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = TRUE;
 
 					// TODO NewNew
 					aPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = eeRound;
 
-					eeFigure = eeCross;	// меняем фигуру.
+					eeFigure = eeCross;	// РјРµРЅСЏРµРј С„РёРіСѓСЂСѓ.
 				}
 				
 
 				eNowWalks = eWalkComp;
 
-				SetWindowText(hText, L"Ходит комп");
+				SetWindowText(hText, L"РҐРѕРґРёС‚ РєРѕРјРї");
 
-				/// Если есть выигрышная комбинация.
+				/// Р•СЃР»Рё РµСЃС‚СЊ РІС‹РёРіСЂС‹С€РЅР°СЏ РєРѕРјР±РёРЅР°С†РёСЏ.
 				///if (CheckOfAWinningCombination() == TRUE)
 				///{
 					///for (int i = 0; i < 9; ++i)
 					///{
-						// Делаем все кнопки не активными.
+						// Р”РµР»Р°РµРј РІСЃРµ РєРЅРѕРїРєРё РЅРµ Р°РєС‚РёРІРЅС‹РјРё.
 						///EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i), FALSE);
 					///}
 
-					// Пишем в статик кто выиграл.
-					/* TODO определить кто выиграл, и потом написать */
+					// РџРёС€РµРј РІ СЃС‚Р°С‚РёРє РєС‚Рѕ РІС‹РёРіСЂР°Р».
+					/* TODO РѕРїСЂРµРґРµР»РёС‚СЊ РєС‚Рѕ РІС‹РёРіСЂР°Р», Рё РїРѕС‚РѕРј РЅР°РїРёСЃР°С‚СЊ */
 				///}
 				///else
 				///{
-					// Делаем кнопку неактивной.
+					// Р”РµР»Р°РµРј РєРЅРѕРїРєСѓ РЅРµР°РєС‚РёРІРЅРѕР№.
 					EnableWindow(GetDlgItem(hWnd, LOWORD(wParam)), NULL);// TODO FALSE
 				///}
 			}
@@ -306,19 +306,19 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			
 
 			/*====================================================================================*/
-			// Например жмет Комп
+			// РќР°РїСЂРёРјРµСЂ Р¶РјРµС‚ РљРѕРјРї
 			if (eNowWalks == eWalkComp)
 			{
 				/*randNumber = (rand() % 9);*/
 
 				// -
-				// TODO - возможно можно будет убрато после рабочего кода "проверка победителя"
-				// Первый анализ - нужно оставить.
+				// TODO - РІРѕР·РјРѕР¶РЅРѕ РјРѕР¶РЅРѕ Р±СѓРґРµС‚ СѓР±СЂР°С‚Рѕ РїРѕСЃР»Рµ СЂР°Р±РѕС‡РµРіРѕ РєРѕРґР° "РїСЂРѕРІРµСЂРєР° РїРѕР±РµРґРёС‚РµР»СЏ"
+				// РџРµСЂРІС‹Р№ Р°РЅР°Р»РёР· - РЅСѓР¶РЅРѕ РѕСЃС‚Р°РІРёС‚СЊ.
 				// test
-				// проверим все ли нажаты
+				// РїСЂРѕРІРµСЂРёРј РІСЃРµ Р»Рё РЅР°Р¶Р°С‚С‹
 				if (!AllArePressed(aPressed))
 				{
-					// проверка ранд номера - если есть то заменить!	// TODO re
+					// РїСЂРѕРІРµСЂРєР° СЂР°РЅРґ РЅРѕРјРµСЂР° - РµСЃР»Рё РµСЃС‚СЊ С‚Рѕ Р·Р°РјРµРЅРёС‚СЊ!	// TODO re
 					///do
 					///{
 					///	randNumber = rand() % 9;
@@ -326,8 +326,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					///} while (isPressed[randNumber] == TRUE);		// TODO not working !!!
 
 					// TODO NewNew
-					// Если не все нажаты, то выберем новую кнопку рандомно
-					// пока не найдем "не нажатую".
+					// Р•СЃР»Рё РЅРµ РІСЃРµ РЅР°Р¶Р°С‚С‹, С‚Рѕ РІС‹Р±РµСЂРµРј РЅРѕРІСѓСЋ РєРЅРѕРїРєСѓ СЂР°РЅРґРѕРјРЅРѕ
+					// РїРѕРєР° РЅРµ РЅР°Р№РґРµРј "РЅРµ РЅР°Р¶Р°С‚СѓСЋ".
 					do
 					{
 						randNumber = rand() % 9;
@@ -335,45 +335,45 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				}
 				
 
-				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
+				// РЎС‚Р°РІРёРј СЂР°РЅРґРѕРјРЅРѕ РёР»Рё РїРѕ Р°Р»РіРѕСЂРёС‚РјСѓ!	// TODO algoritm or random
 
-				// Ставим фигуру.
+				// РЎС‚Р°РІРёРј С„РёРіСѓСЂСѓ.
 				if (eeFigure == eeCross)
 				{
-					// Ставим "крестик".
+					// РЎС‚Р°РІРёРј "РєСЂРµСЃС‚РёРє".
 					SendMessage(
-						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
+						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 Р·Р°РјРµРЅРёС‚СЊ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ randShot
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hCross));
-					// Запоминаем нажатую кнопку.
+					// Р—Р°РїРѕРјРёРЅР°РµРј РЅР°Р¶Р°С‚СѓСЋ РєРЅРѕРїРєСѓ.
 					///isPressed[randNumber] = TRUE;
 					// TODO NewNew
 					aPressed[randNumber] = eeCross;
 
-					eeFigure = eeRound;	// меняем фигуру.
+					eeFigure = eeRound;	// РјРµРЅСЏРµРј С„РёРіСѓСЂСѓ.
 				}
 				else if (eeFigure == eeRound)
 				{
-					// Ставим "нолик".
+					// РЎС‚Р°РІРёРј "РЅРѕР»РёРє".
 					SendMessage(
-						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
+						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 Р·Р°РјРµРЅРёС‚СЊ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ randShot
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hRound));
-					// Запоминаем нажатую кнопку.
+					// Р—Р°РїРѕРјРёРЅР°РµРј РЅР°Р¶Р°С‚СѓСЋ РєРЅРѕРїРєСѓ.
 					///isPressed[randNumber] = TRUE;
 					// TODO NewNew
 					aPressed[randNumber] = eeRound;
 
-					eeFigure = eeCross;	// меняем фигуру.
+					eeFigure = eeCross;	// РјРµРЅСЏРµРј С„РёРіСѓСЂСѓ.
 				}
 
-				// Меняем игрока
+				// РњРµРЅСЏРµРј РёРіСЂРѕРєР°
 				eNowWalks = eWalkUser;
-				// Сообщение для след игрока
-				SetWindowText(hText, L"Ваш ход");
+				// РЎРѕРѕР±С‰РµРЅРёРµ РґР»СЏ СЃР»РµРґ РёРіСЂРѕРєР°
+				SetWindowText(hText, L"Р’Р°С€ С…РѕРґ");
 
-				// Делаем кнопку неактивной.	// TODO FALSE
-				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber), NULL);	// TODO 5 заменить на переменную randShot
+				// Р”РµР»Р°РµРј РєРЅРѕРїРєСѓ РЅРµР°РєС‚РёРІРЅРѕР№.	// TODO FALSE
+				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber), NULL);	// TODO 5 Р·Р°РјРµРЅРёС‚СЊ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ randShot
 			}
 			/*======================================================================================*/
 
@@ -390,7 +390,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 
 
-// Загружаем bmp	//  TODO потом при нажатии кнопок
+// Р—Р°РіСЂСѓР¶Р°РµРј bmp	//  TODO РїРѕС‚РѕРј РїСЂРё РЅР°Р¶Р°С‚РёРё РєРЅРѕРїРѕРє
 //SendMessage(hButton_xo[0], BM_SETIMAGE, WPARAM(IMAGE_BITMAP), LPARAM(hCross));
 //SendMessage(hButton_xo[1], BM_SETIMAGE, WPARAM(IMAGE_BITMAP), LPARAM(hRound));
 
@@ -410,7 +410,7 @@ BOOL AllArePressed(int aPressed[]) {
 
 BOOL CheckOfAWinningCombination(){
 
-	// Ищем выигрышную комбинацию. 
+	// РС‰РµРј РІС‹РёРіСЂС‹С€РЅСѓСЋ РєРѕРјР±РёРЅР°С†РёСЋ. 
 	if (/* condition */ FALSE)
 	{
 		/* code */
