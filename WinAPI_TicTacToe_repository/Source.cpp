@@ -4,6 +4,8 @@
 // Прототип функции DlgProc.
 BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
+BOOL AllArePressed(BOOL isPressed[]);
+
 
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszCmdLine, int nCmdShow)
@@ -42,14 +44,11 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	static HBITMAP hCross, hRound;
 	static HBITMAP hEmpty;	// handle не существующей картинки.
 
-	// Меняем стиль класса кнопки.
-	/*static HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 0, 0));
-	static UINT styleButton_xo = GetClassLong(hButton_xo[0], GCL_STYLE);*/
-	
-	//static HBRUSH whiteBrush;
-
 	static int randNumber;
 
+	static BOOL isPressed[9];
+	//TCHAR szTempNumber[MAX_PATH];
+	static BOOL isAllArePressed;
 
 
 	switch (uMessage)
@@ -81,6 +80,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			hButton_xo[i] = GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i);
 			// При запуске все кнопки не активны.
 			EnableWindow(hButton_xo[i], NULL);
+			
 		}
 
 		// Загружаем bmp "крестик", "нолик" и "пусто" и получаем их Handle.
@@ -95,6 +95,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		SendMessage(hWalkFirst, BM_SETCHECK, WPARAM(BST_UNCHECKED), NULL);
 		// Первым ходит "Комп".
 		eNowWalks = eWalkComp;		// TODO ???
+		
 
 		// Пишем текст.
 		SetWindowText(hWnd, L"Крестики нолики");
@@ -125,10 +126,15 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 				// Делаем кнопки активными.
 				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i), TRUE);
+
+				// Изначально кнопки не нажаты.
+				isPressed[i] = FALSE;
 			}
 
 			// У первого игрока всегда "х".
 			eFigure = eCross;
+
+			isAllArePressed = FALSE;
 
 			// Проверить состояние флажка "ходить первым".
 			// Если флажок установлен
@@ -144,6 +150,20 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			// Иначе если не установлен
 			else
 			{
+
+				// -
+				// TODO - возможно можно будет убрато после рабочего кода "проверка победителя"
+				// Первый анализ - нужно оставить.
+				// test
+				// проверим все ли нажаты
+				if (!AllArePressed(isPressed)) {
+					// проверка ранд номера - если есть то заменить!	// TODO re
+					do
+					{
+						randNumber = rand() % 9;
+					} while (isPressed[randNumber] == TRUE);		// TODO not working !!!
+				}
+
 				// То ход Компа.
 				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
 				SendMessage(
@@ -151,7 +171,11 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
 					BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 					LPARAM(hCross));
+				// Запоминаем нажатую кнопку.
+				isPressed[randNumber] = TRUE;
 
+				// Делаем кнопку неактивной.
+				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber), FALSE);
 				// Меняем игрока
 				eNowWalks = eWalkUser;
 				// Меняем фигуру
@@ -223,6 +247,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						GetDlgItem(hWnd, LOWORD(wParam)),
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hCross));
+					// Запоминаем нажатую кнопку.
+					isPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = TRUE;
 
 					eFigure = eRound;	// меняем фигуру.
 				}
@@ -233,24 +259,12 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						GetDlgItem(hWnd, LOWORD(wParam)),
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hRound));
+					// Запоминаем нажатую кнопку.
+					isPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = TRUE;
 
 					eFigure = eCross;	// меняем фигуру.
 				}
-
-				// Ход игрока
-				// и меняем игрока...
-
-				// Ходит Комп
-				/*if (eNowWalks == eWalkComp)
-				{
-					// Вручную и рандомно ставим текущую фигуру
-					//
-
-					eNowWalks = eWalkUser;
-
-					SetWindowText(hText, L"Ваш ход");
-				}
-				else*/
+				
 
 				eNowWalks = eWalkComp;
 
@@ -267,10 +281,23 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			// Например жмет Комп
 			if (eNowWalks == eWalkComp)
 			{
-				randNumber = (rand() % 9);
+				/*randNumber = (rand() % 9);*/
 
-				// проверка ранд номера - если есть то заменить!	// TODO re
-
+				// -
+				// TODO - возможно можно будет убрато после рабочего кода "проверка победителя"
+				// Первый анализ - нужно оставить.
+				// test
+				// проверим все ли нажаты
+				if (!AllArePressed(isPressed))
+				{
+					// проверка ранд номера - если есть то заменить!	// TODO re
+					do
+					{
+						randNumber = rand() % 9;
+						//SetWindowText(hWnd, MAKEINTRESOURCE(randNumber));
+					} while (isPressed[randNumber] == TRUE);		// TODO not working !!!
+				}
+				
 
 				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
 
@@ -282,6 +309,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hCross));
+					// Запоминаем нажатую кнопку.
+					isPressed[randNumber] = TRUE;
 
 					eFigure = eRound;	// меняем фигуру.
 				}
@@ -292,6 +321,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hRound));
+					// Запоминаем нажатую кнопку.
+					isPressed[randNumber] = TRUE;
 
 					eFigure = eCross;	// меняем фигуру.
 				}
@@ -322,3 +353,15 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 // Загружаем bmp	//  TODO потом при нажатии кнопок
 //SendMessage(hButton_xo[0], BM_SETIMAGE, WPARAM(IMAGE_BITMAP), LPARAM(hCross));
 //SendMessage(hButton_xo[1], BM_SETIMAGE, WPARAM(IMAGE_BITMAP), LPARAM(hRound));
+
+BOOL AllArePressed(BOOL isPressed[]) {
+	for (int i = 0; i < 9; i++)
+	{
+		if (isPressed[i] == FALSE)
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}

@@ -25,6 +25,7 @@
 
 #include <windows.h>
 #include <time.h>
+#include <tchar.h>	// TODO delete
 #include "resource.h"
 
 enum {eComp, eUser} ePlayer;
