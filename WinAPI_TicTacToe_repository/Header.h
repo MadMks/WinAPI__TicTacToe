@@ -29,6 +29,9 @@
 #include "resource.h"
 
 enum {eComp, eUser} ePlayer;
-enum {eRound, eCross} eFigure;
+///enum {eRound, eCross} eFigure;
 
 enum {eWalkComp, eWalkUser} eNowWalks;
+
+// TODO New
+enum {eeEmpty, eeCross, eeRound} eeFigure;

@@ -4,7 +4,8 @@
 // Прототип функции DlgProc.
 BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
-BOOL AllArePressed(BOOL isPressed[]);
+BOOL AllArePressed(int isPressed[]);
+BOOL CheckOfAWinningCombination();
 
 
 
@@ -46,7 +47,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 	static int randNumber;
 
-	static BOOL isPressed[9];
+	///static BOOL isPressed[9];
+	static int aPressed[9];
 	//TCHAR szTempNumber[MAX_PATH];
 	static BOOL isAllArePressed;
 
@@ -59,12 +61,6 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0); // останавливаем цикл обработки сообщений.
 		return TRUE;
 
-	/*case WM_CTLCOLORBTN:
-	{
-		SetTextColor((HDC)wParam, RGB(0, 0, 100));
-		SetBkColor((HDC)wParam, RGB(100, 190, 198));
-		return (LRESULT)CreateSolidBrush(RGB(100, 190, 198));
-	}*/
 
 	case WM_INITDIALOG:
 		// Получаем Handle.
@@ -79,7 +75,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		{
 			hButton_xo[i] = GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i);
 			// При запуске все кнопки не активны.
-			EnableWindow(hButton_xo[i], NULL);
+			EnableWindow(hButton_xo[i], NULL);	// TODO FALSE
 			
 		}
 
@@ -94,7 +90,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		// Изначально флажок "ходить первым" снят.
 		SendMessage(hWalkFirst, BM_SETCHECK, WPARAM(BST_UNCHECKED), NULL);
 		// Первым ходит "Комп".
-		eNowWalks = eWalkComp;		// TODO ???
+		eNowWalks = eWalkComp;		// TODO ??? - просмотрел код = особо не нужно.
 		
 
 		// Пишем текст.
@@ -103,8 +99,6 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		
 	
 
-		
-		//SetClassLong(hButton_xo[0], GCL_STYLE, styleButton_xo | (LONG)whiteBrush);	// TODO delete  - not work
 
 		return TRUE;
 
@@ -128,11 +122,13 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i), TRUE);
 
 				// Изначально кнопки не нажаты.
-				isPressed[i] = FALSE;
+				//isPressed[i] = FALSE;
+				// TODO NewNew
+				aPressed[i] = eeEmpty;
 			}
 
 			// У первого игрока всегда "х".
-			eFigure = eCross;
+			eeFigure = eeCross;
 
 			isAllArePressed = FALSE;
 
@@ -156,12 +152,20 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				// Первый анализ - нужно оставить.
 				// test
 				// проверим все ли нажаты
-				if (!AllArePressed(isPressed)) {
+				if (!AllArePressed(aPressed)) {
 					// проверка ранд номера - если есть то заменить!	// TODO re
+					///do
+					///{
+					///	randNumber = rand() % 9;
+					///} while (isPressed[randNumber] == TRUE);		// TODO (not) working !!!
+					
+					// TODO NewNew
+					// Если не все нажаты, то выберем новую кнопку рандомно
+					// пока не найдем "не нажатую".
 					do
 					{
 						randNumber = rand() % 9;
-					} while (isPressed[randNumber] == TRUE);		// TODO not working !!!
+					} while (aPressed[randNumber] != eeEmpty);
 				}
 
 				// То ход Компа.
@@ -172,14 +176,17 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 					LPARAM(hCross));
 				// Запоминаем нажатую кнопку.
-				isPressed[randNumber] = TRUE;
+				///isPressed[randNumber] = TRUE;
+				// TODO NewNew
+				// Запоминаем нажатую кнопку.
+				aPressed[randNumber] = eeCross;
 
 				// Делаем кнопку неактивной.
 				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber), FALSE);
 				// Меняем игрока
 				eNowWalks = eWalkUser;
 				// Меняем фигуру
-				eFigure = eRound;
+				eeFigure = eeRound;
 
 				// рандом или алгоритм
 				// ход компа	// TODO algoritm
@@ -235,12 +242,12 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		//if (LOWORD(wParam) == IDC_BUTTON_xo_1)
 		if (LOWORD(wParam) >= IDC_BUTTON_xo_1 && LOWORD(wParam) <= IDC_BUTTON_xo_9)
 		{
-			
+			// Если ходит User.
 			if (eNowWalks == eWalkUser)
 			{
 
 				// Ставим фигуру.
-				if (eFigure == eCross)
+				if (eeFigure == eeCross)
 				{
 					// Ставим "крестик".
 					SendMessage(
@@ -248,11 +255,14 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hCross));
 					// Запоминаем нажатую кнопку.
-					isPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = TRUE;
+					///isPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = TRUE;
 
-					eFigure = eRound;	// меняем фигуру.
+					// TODO NewNew
+					aPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = eeCross;
+
+					eeFigure = eeRound;	// меняем фигуру.
 				}
-				else if (eFigure == eRound)
+				else if (eeFigure == eeRound)
 				{
 					// Ставим "нолик".
 					SendMessage(
@@ -260,9 +270,12 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hRound));
 					// Запоминаем нажатую кнопку.
-					isPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = TRUE;
+					///isPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = TRUE;
 
-					eFigure = eCross;	// меняем фигуру.
+					// TODO NewNew
+					aPressed[GetDlgCtrlID(GetDlgItem(hWnd, LOWORD(wParam))) - IDC_BUTTON_xo_1] = eeRound;
+
+					eeFigure = eeCross;	// меняем фигуру.
 				}
 				
 
@@ -270,8 +283,23 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 				SetWindowText(hText, L"Ходит комп");
 
-				// Делаем кнопку неактивной.
-				EnableWindow(GetDlgItem(hWnd, LOWORD(wParam)), NULL);
+				/// Если есть выигрышная комбинация.
+				///if (CheckOfAWinningCombination() == TRUE)
+				///{
+					///for (int i = 0; i < 9; ++i)
+					///{
+						// Делаем все кнопки не активными.
+						///EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + i), FALSE);
+					///}
+
+					// Пишем в статик кто выиграл.
+					/* TODO определить кто выиграл, и потом написать */
+				///}
+				///else
+				///{
+					// Делаем кнопку неактивной.
+					EnableWindow(GetDlgItem(hWnd, LOWORD(wParam)), NULL);// TODO FALSE
+				///}
 			}
 			
 
@@ -288,21 +316,29 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				// Первый анализ - нужно оставить.
 				// test
 				// проверим все ли нажаты
-				if (!AllArePressed(isPressed))
+				if (!AllArePressed(aPressed))
 				{
 					// проверка ранд номера - если есть то заменить!	// TODO re
+					///do
+					///{
+					///	randNumber = rand() % 9;
+						//SetWindowText(hWnd, MAKEINTRESOURCE(randNumber));
+					///} while (isPressed[randNumber] == TRUE);		// TODO not working !!!
+
+					// TODO NewNew
+					// Если не все нажаты, то выберем новую кнопку рандомно
+					// пока не найдем "не нажатую".
 					do
 					{
 						randNumber = rand() % 9;
-						//SetWindowText(hWnd, MAKEINTRESOURCE(randNumber));
-					} while (isPressed[randNumber] == TRUE);		// TODO not working !!!
+					} while (aPressed[randNumber] != eeEmpty);
 				}
 				
 
 				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
 
 				// Ставим фигуру.
-				if (eFigure == eCross)
+				if (eeFigure == eeCross)
 				{
 					// Ставим "крестик".
 					SendMessage(
@@ -310,11 +346,13 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hCross));
 					// Запоминаем нажатую кнопку.
-					isPressed[randNumber] = TRUE;
+					///isPressed[randNumber] = TRUE;
+					// TODO NewNew
+					aPressed[randNumber] = eeCross;
 
-					eFigure = eRound;	// меняем фигуру.
+					eeFigure = eeRound;	// меняем фигуру.
 				}
-				else if (eFigure == eRound)
+				else if (eeFigure == eeRound)
 				{
 					// Ставим "нолик".
 					SendMessage(
@@ -322,9 +360,11 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
 						LPARAM(hRound));
 					// Запоминаем нажатую кнопку.
-					isPressed[randNumber] = TRUE;
+					///isPressed[randNumber] = TRUE;
+					// TODO NewNew
+					aPressed[randNumber] = eeRound;
 
-					eFigure = eCross;	// меняем фигуру.
+					eeFigure = eeCross;	// меняем фигуру.
 				}
 
 				// Меняем игрока
@@ -332,7 +372,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				// Сообщение для след игрока
 				SetWindowText(hText, L"Ваш ход");
 
-				// Делаем кнопку неактивной.
+				// Делаем кнопку неактивной.	// TODO FALSE
 				EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber), NULL);	// TODO 5 заменить на переменную randShot
 			}
 			/*======================================================================================*/
@@ -354,13 +394,26 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 //SendMessage(hButton_xo[0], BM_SETIMAGE, WPARAM(IMAGE_BITMAP), LPARAM(hCross));
 //SendMessage(hButton_xo[1], BM_SETIMAGE, WPARAM(IMAGE_BITMAP), LPARAM(hRound));
 
-BOOL AllArePressed(BOOL isPressed[]) {
+BOOL AllArePressed(int aPressed[]) {
 	for (int i = 0; i < 9; i++)
 	{
-		if (isPressed[i] == FALSE)
+		if (aPressed[i] == eeEmpty)
 		{
 			return FALSE;
 		}
+	}
+
+	return TRUE;
+}
+
+
+
+BOOL CheckOfAWinningCombination(){
+
+	// Ищем выигрышную комбинацию. 
+	if (/* condition */ FALSE)
+	{
+		/* code */
 	}
 
 	return TRUE;
