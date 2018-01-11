@@ -1,4 +1,5 @@
 ﻿#include "Header.h"
+#include "Game.h"
 
 
 // Прототип функции DlgProc.
@@ -57,6 +58,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	static BOOL isAllArePressed;
 
 	static int iNumberButton;
+
+	static Game game;
 
 
 	switch (uMessage)
