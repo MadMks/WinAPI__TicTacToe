@@ -8,6 +8,9 @@ BOOL AllArePressed(int isPressed[]);
 BOOL CheckOfAWinningCombination(int aPressed[]);
 void Standoff(HWND hWnd, HWND hText);
 
+void ComputerPuts(HWND hWnd, int numberButton, HBITMAP hFigure);
+int GettingTheButtonNumber(int eLevel);
+
 
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszCmdLine, int nCmdShow)
@@ -53,6 +56,8 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	//TCHAR szTempNumber[MAX_PATH];
 	static BOOL isAllArePressed;
 
+	static int iNumberButton;
+
 
 	switch (uMessage)
 	{
@@ -80,7 +85,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			
 		}
 
-		// Загружаем bmp "крестик", "нолик" и "пусто" и получаем их Handle.
+		// Загружаем bmp "крестик", "нолик" и получаем их Handle.
 		hCross = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP_x));
 		hRound = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP_o));
 		//hEmpty = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BITMAP_backg));	// TODO delete
@@ -131,8 +136,26 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 			isAllArePressed = FALSE;	// TODO ??? - delete
 
+			// Если радиоБаттон стоит на лекгом уровне.
+			if (SendDlgItemMessage(hWnd,IDC_RADIO_EasyLevel, BM_GETCHECK, NULL, NULL) == BST_CHECKED)
+			{
+				// то Comp ходит рандомно.
+				eLevel = eEasy;
+				/*MessageBox(hWnd, L"Нажал радио \"Легкий уровень\"",
+					L"работает", MB_OK | MB_ICONINFORMATION);*/
+			}
+			// Иначе если на тяжелом уровне.
+			else
+			{
+				// то Comp ходит по алгоритму.
+				eLevel = eHard;
+				/*MessageBox(hWnd, L"Нажал радио \"Сложный уровень\"",
+					L"работает", MB_OK | MB_ICONINFORMATION);*/
+			}
+
 			// Проверить состояние флажка "ходить первым".
 			// Если флажок установлен
+			// ===== Ходит User
 			if (SendMessage(hWalkFirst, BM_GETCHECK, NULL, NULL) == BST_CHECKED)
 			{
 				// То ход игрока.
@@ -143,6 +166,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				SetWindowText(hText, L"Ваш ход");
 			}
 			// Иначе если не установлен
+			// ===== Ходит Comp
 			else
 			{
 				// проверим все ли нажаты
@@ -155,13 +179,15 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					} while (aPressed[randNumber] != eeEmpty);
 				}
 
-				// То ход Компа.
-				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
-				SendMessage(
-					//GetDlgItem(hWnd, LOWORD(wParam)),
-					GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
-					BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
-					LPARAM(hCross));
+				// Если		// TODO TODO TODO
+				if (eLevel == eHard)
+				{
+					randNumber = 4;
+					// Первый ход Компа всегда в центр.	
+				}
+
+				ComputerPuts(hWnd, randNumber, hCross);
+				
 
 				// Запоминаем нажатую кнопку.
 				aPressed[randNumber] = eeCross;
@@ -186,14 +212,14 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 		// Легкая сложность.
 		else if (LOWORD(wParam) == IDC_RADIO_EasyLevel)
 		{
-			MessageBox(hWnd, L"Нажал радио \"Легкий уровень\"",
-				L"работает", MB_OK | MB_ICONINFORMATION);
+			/*MessageBox(hWnd, L"Нажал радио \"Легкий уровень\"",
+				L"работает", MB_OK | MB_ICONINFORMATION);*/
 		}
 		// Тяжелая сложность.
 		else if (LOWORD(wParam) == IDC_RADIO_HardLevel)
 		{
-			MessageBox(hWnd, L"Нажал радио \"Сложный уровень\"",
-				L"работает", MB_OK | MB_ICONINFORMATION);
+			/*MessageBox(hWnd, L"Нажал радио \"Сложный уровень\"",
+				L"работает", MB_OK | MB_ICONINFORMATION);*/
 		}
 		// User ходит первым (крестиками).
 		else if (LOWORD(wParam) == IDC_CHECK_WalkFirst)
@@ -243,7 +269,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					eeFigure = eeCross;	// меняем фигуру.
 				}
 				
-
+				// Смена игрока.
 				eNowWalks = eWalkComp;
 
 				SetWindowText(hText, L"Ходит комп");
@@ -278,10 +304,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 						// Дальше никто не ходит.
 						eNowWalks = eNoMoves;
 
-						//// Значит "Ничья".
-						//MessageBox(hWnd, L"Ничья",
-						//	L"работает", MB_OK | MB_ICONINFORMATION);
-						//SetWindowText(hText, L"Ничья");
+						// Значит "Ничья".
 						Standoff(hWnd, hText);
 					}
 				}
@@ -305,7 +328,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					} while (aPressed[randNumber] != eeEmpty);
 				}
 				
-				
+				iNumberButton = GettingTheButtonNumber(eLevel);	// TODO (game, eLevel)
 
 				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
 
@@ -313,10 +336,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				if (eeFigure == eeCross)
 				{
 					// Ставим "крестик".
-					SendMessage(
-						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
-						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
-						LPARAM(hCross));
+					ComputerPuts(hWnd, randNumber, hCross);
 					// Запоминаем нажатую кнопку.
 					aPressed[randNumber] = eeCross;
 
@@ -325,10 +345,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				else if (eeFigure == eeRound)
 				{
 					// Ставим "нолик".
-					SendMessage(
-						GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),	// TODO 5 заменить на переменную randShot
-						BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
-						LPARAM(hRound));
+					ComputerPuts(hWnd, randNumber, hRound);
 					// Запоминаем нажатую кнопку.
 					aPressed[randNumber] = eeRound;
 
@@ -365,10 +382,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 					// Если после хода Сompa все нажаты.
 					if (AllArePressed(aPressed) == TRUE)
 					{
-						//// Значит "Ничья".
-						//MessageBox(hWnd, L"Ничья",
-						//	L"работает", MB_OK | MB_ICONINFORMATION);
-						//SetWindowText(hText, L"Ничья");
+						// Значит "Ничья".
 						Standoff(hWnd, hText);
 					}
 				}
@@ -469,3 +483,59 @@ void Standoff(HWND hWnd, HWND hText) {
 
 	SetWindowText(hText, L"Ничья");
 }
+
+
+void ComputerPuts(HWND hWnd, int numberButton, HBITMAP hFigure) {
+	SendMessage(
+		GetDlgItem(hWnd, IDC_BUTTON_xo_1 + numberButton),
+		BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
+		LPARAM(hFigure));
+}
+
+int GettingTheButtonNumber(int eLevel) {
+
+	return 0;
+}
+
+//void RandWalkComp() {
+//	// проверим все ли нажаты
+//	if (!AllArePressed(aPressed))
+//	{
+//		// Если не все нажаты, то выберем новую кнопку рандомно
+//		// пока не найдем "не нажатую".
+//		do
+//		{
+//			randNumber = rand() % 9;
+//		} while (aPressed[randNumber] != eeEmpty);
+//	}
+//
+//
+//
+//	// Ставим рандомно или по алгоритму!	// TODO algoritm or random
+//
+//	// Ставим фигуру.
+//	if (eeFigure == eeCross)
+//	{
+//		// Ставим "крестик".
+//		SendMessage(
+//			GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),
+//			BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
+//			LPARAM(hCross));
+//		// Запоминаем нажатую кнопку.
+//		aPressed[randNumber] = eeCross;
+//
+//		eeFigure = eeRound;	// меняем фигуру.
+//	}
+//	else if (eeFigure == eeRound)
+//	{
+//		// Ставим "нолик".
+//		SendMessage(
+//			GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber),
+//			BM_SETIMAGE, WPARAM(IMAGE_BITMAP),
+//			LPARAM(hRound));
+//		// Запоминаем нажатую кнопку.
+//		aPressed[randNumber] = eeRound;
+//
+//		eeFigure = eeCross;	// меняем фигуру.
+//	}
+//}
