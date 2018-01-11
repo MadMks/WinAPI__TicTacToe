@@ -31,7 +31,7 @@
 enum {eComp, eUser} ePlayer;
 ///enum {eRound, eCross} eFigure;
 
-enum {eWalkComp, eWalkUser} eNowWalks;
+enum {eWalkComp, eWalkUser, eNoMoves} eNowWalks;
 
 // TODO New
 enum {eeEmpty, eeCross, eeRound} eeFigure;
