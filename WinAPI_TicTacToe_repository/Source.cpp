@@ -620,9 +620,45 @@ int Algorithm(int aPressed[], int eFigureComp) {
 
 
 	// Рандомная расстановка (центр, углы, промежутки).
+	// => TODO логика рандомная, для пустого поля (как в тетради).
+	if (aPressed[4] == eeEmpty)
+	{
+		return 4;
+	}
+	else if (aPressed[0] == eeEmpty)
+	{
+		return 0;
+	}
+	else if (aPressed[2] == eeEmpty)
+	{
+		return 2;
+	}
+	else if (aPressed[6] == eeEmpty)
+	{
+		return 6;
+	}
+	else if (aPressed[8] == eeEmpty)
+	{
+		return 8;
+	}
+	else if (aPressed[1] == eeEmpty)
+	{
+		return 1;
+	}
+	else if (aPressed[3] == eeEmpty)
+	{
+		return 3;
+	}
+	else if (aPressed[5] == eeEmpty)
+	{
+		return 5;
+	}
+	else if (aPressed[7] == eeEmpty)
+	{
+		return 7;
+	}
 
-
-	return 6;
+	return 0;
 }
 
 //BOOL CheckAllCombinations(int nButton, int route, int eFigure) {
@@ -632,11 +668,11 @@ int Algorithm(int aPressed[], int eFigureComp) {
 BOOL CombinationCheck(int aPressed[], int nButton, int route, int eFigure) {
 
 	if (
-		(aPressed[nButton] == eFigure) && ((aPressed[nButton += route]) == eFigure) && ((aPressed[nButton += route]) == eeEmpty)
+		(aPressed[nButton] == eFigure) && ((aPressed[nButton + route]) == eFigure) && ((aPressed[nButton + route + route]) == eeEmpty)
 		||
-		(aPressed[nButton] == eFigure) && ((aPressed[nButton += route]) == eeEmpty) && ((aPressed[nButton += route]) == eFigure)
+		(aPressed[nButton] == eFigure) && ((aPressed[nButton + route]) == eeEmpty) && ((aPressed[nButton + route + route]) == eFigure)
 		||
-		(aPressed[nButton] == eeEmpty) && ((aPressed[nButton += route]) == eFigure) && ((aPressed[nButton += route]) == eFigure)
+		(aPressed[nButton] == eeEmpty) && ((aPressed[nButton + route]) == eFigure) && ((aPressed[nButton + route + route]) == eFigure)
 		)
 	{
 		return TRUE;
