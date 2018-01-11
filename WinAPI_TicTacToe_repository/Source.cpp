@@ -1,5 +1,5 @@
 ﻿#include "Header.h"
-#include "Game.h"
+//#include "Game.h"
 
 
 // Прототип функции DlgProc.
@@ -10,7 +10,10 @@ BOOL CheckOfAWinningCombination(int aPressed[]);
 void Standoff(HWND hWnd, HWND hText);
 
 void ComputerPuts(HWND hWnd, int numberButton, HBITMAP hFigure);
-int GettingTheButtonNumber(int eLevel);
+int GettingTheButtonNumber(int aPressed[], int eLevel, int eFigureComp);
+int Algorithm(int aPressed[], int eFigureComp);
+BOOL CombinationCheck(int aPressed[], int nButton, int route, int eFigure);
+int SearchIsEmpty(int aPressed[], int nButton, int route);
 
 
 
@@ -59,7 +62,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 	static int iNumberButton;
 
-	static Game game;
+	//static Game game;
 
 
 	switch (uMessage)
@@ -321,17 +324,17 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 			if (eNowWalks == eWalkComp)
 			{
 				// проверим все ли нажаты
-				if (!AllArePressed(aPressed))
-				{
-					// Если не все нажаты, то выберем новую кнопку рандомно
-					// пока не найдем "не нажатую".
-					do
-					{
-						randNumber = rand() % 9;
-					} while (aPressed[randNumber] != eeEmpty);
-				}
+				//if (!AllArePressed(aPressed))
+				//{
+				//	// Если не все нажаты, то выберем новую кнопку рандомно
+				//	// пока не найдем "не нажатую".
+				//	do
+				//	{
+				//		randNumber = rand() % 9;
+				//	} while (aPressed[randNumber] != eeEmpty);
+				//}
 				
-				iNumberButton = GettingTheButtonNumber(eLevel);	// TODO (game, eLevel)
+				iNumberButton = GettingTheButtonNumber(aPressed, eLevel, eeFigure);	// TODO (game, eLevel)
 
 				// Ставим рандомно или по алгоритму!	// TODO algoritm or random
 
@@ -339,18 +342,18 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				if (eeFigure == eeCross)
 				{
 					// Ставим "крестик".
-					ComputerPuts(hWnd, randNumber, hCross);
+					ComputerPuts(hWnd, iNumberButton, hCross);
 					// Запоминаем нажатую кнопку.
-					aPressed[randNumber] = eeCross;
+					aPressed[iNumberButton] = eeCross;
 
 					eeFigure = eeRound;	// меняем фигуру.
 				}
 				else if (eeFigure == eeRound)
 				{
 					// Ставим "нолик".
-					ComputerPuts(hWnd, randNumber, hRound);
+					ComputerPuts(hWnd, iNumberButton, hRound);
 					// Запоминаем нажатую кнопку.
-					aPressed[randNumber] = eeRound;
+					aPressed[iNumberButton] = eeRound;
 
 					eeFigure = eeCross;	// меняем фигуру.
 				}
@@ -380,7 +383,7 @@ BOOL CALLBACK DlgProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 				else
 				{
 					// Делаем кнопку неактивной.
-					EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + randNumber), NULL);// TODO FALSE
+					EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_xo_1 + iNumberButton), NULL);// TODO FALSE
 
 					// Если после хода Сompa все нажаты.
 					if (AllArePressed(aPressed) == TRUE)
@@ -495,9 +498,164 @@ void ComputerPuts(HWND hWnd, int numberButton, HBITMAP hFigure) {
 		LPARAM(hFigure));
 }
 
-int GettingTheButtonNumber(int eLevel) {
+int GettingTheButtonNumber(int aPressed[], int eLevel, int eFigureComp) {
+
+	if (eLevel == eEasy)
+	{
+		int tempRandNumber;
+
+		// проверим все ли нажаты
+		if (!AllArePressed(aPressed))
+		{
+			// Если не все нажаты, то выберем новую кнопку рандомно
+			// пока не найдем "не нажатую".
+			do
+			{
+				tempRandNumber = rand() % 9;
+			} while (aPressed[tempRandNumber] != eeEmpty);
+		}
+
+		return tempRandNumber;
+	}
+	else if (eLevel == eHard)
+	{
+		return Algorithm(aPressed, eFigureComp);
+	}
 
 	return 0;
+}
+
+int Algorithm(int aPressed[], int eFigureComp) {
+
+	int eFigureUser;
+
+	// Узнаем у кого какая фигура.
+	if (eFigureComp == eeCross)
+	{
+		eFigureUser = eeRound;
+	}
+	else
+	{
+		eFigureUser = eeCross;
+	}
+
+
+	// Проверка полей противника (Usera)
+	// Нападение.
+
+	// Горизонтальные поля.
+	if (CombinationCheck(aPressed, 0, d_HORIZONTAL, eFigureUser) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 0, d_HORIZONTAL);
+	}
+	else if (CombinationCheck(aPressed, 3, d_HORIZONTAL, eFigureUser) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 3, d_HORIZONTAL);
+	}
+	else if (CombinationCheck(aPressed, 6, d_HORIZONTAL, eFigureUser) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 6, d_HORIZONTAL);
+	}
+	// Вертикальные поля.
+	else if (CombinationCheck(aPressed, 0, d_VERTICAL, eFigureUser) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 0, d_VERTICAL);
+	}
+	else if (CombinationCheck(aPressed, 1, d_VERTICAL, eFigureUser) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 1, d_VERTICAL);
+	}
+	else if (CombinationCheck(aPressed, 2, d_VERTICAL, eFigureUser) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 2, d_VERTICAL);
+	}
+	// Диагональ.
+	else if (CombinationCheck(aPressed, 2, d_DIAGONAL_LEFT, eFigureUser) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 2, d_DIAGONAL_LEFT);
+	}
+	else if (CombinationCheck(aPressed, 0, d_DIAGONAL_RIGHT, eFigureUser) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 0, d_DIAGONAL_RIGHT);
+	}
+
+	// Проверка полей Компьютера (своих).
+	// Защита.
+
+	// Горизонтальные поля.
+	if (CombinationCheck(aPressed, 0, d_HORIZONTAL, eFigureComp) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 0, d_HORIZONTAL);
+	}
+	else if (CombinationCheck(aPressed, 3, d_HORIZONTAL, eFigureComp) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 3, d_HORIZONTAL);
+	}
+	else if (CombinationCheck(aPressed, 6, d_HORIZONTAL, eFigureComp) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 6, d_HORIZONTAL);
+	}
+	// Вертикальные поля.
+	else if (CombinationCheck(aPressed, 0, d_VERTICAL, eFigureComp) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 0, d_VERTICAL);
+	}
+	else if (CombinationCheck(aPressed, 1, d_VERTICAL, eFigureComp) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 1, d_VERTICAL);
+	}
+	else if (CombinationCheck(aPressed, 2, d_VERTICAL, eFigureComp) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 2, d_VERTICAL);
+	}
+	// Диагональ.
+	else if (CombinationCheck(aPressed, 2, d_DIAGONAL_LEFT, eFigureComp) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 2, d_DIAGONAL_LEFT);
+	}
+	else if (CombinationCheck(aPressed, 0, d_DIAGONAL_RIGHT, eFigureComp) == TRUE)
+	{
+		return SearchIsEmpty(aPressed, 0, d_DIAGONAL_RIGHT);
+	}
+
+
+	// Рандомная расстановка (центр, углы, промежутки).
+
+
+	return 6;
+}
+
+//BOOL CheckAllCombinations(int nButton, int route, int eFigure) {
+//
+//}
+
+BOOL CombinationCheck(int aPressed[], int nButton, int route, int eFigure) {
+
+	if (
+		(aPressed[nButton] == eFigure) && ((aPressed[nButton += route]) == eFigure) && ((aPressed[nButton += route]) == eeEmpty)
+		||
+		(aPressed[nButton] == eFigure) && ((aPressed[nButton += route]) == eeEmpty) && ((aPressed[nButton += route]) == eFigure)
+		||
+		(aPressed[nButton] == eeEmpty) && ((aPressed[nButton += route]) == eFigure) && ((aPressed[nButton += route]) == eFigure)
+		)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+int SearchIsEmpty(int aPressed[], int nButton, int route) {
+
+	for (int i = 0; i < 3; i++)		// TODO define SIZE_COMBINATION
+	{
+		if (aPressed[nButton] == eeEmpty)
+		{
+			return nButton;
+		}
+
+		nButton += route;
+	}
 }
 
 //void RandWalkComp() {

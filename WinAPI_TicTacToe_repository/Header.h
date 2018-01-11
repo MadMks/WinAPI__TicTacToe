@@ -28,6 +28,12 @@
 #include <tchar.h>	// TODO delete
 #include "resource.h"
 
+#define d_HORIZONTAL 1
+#define d_DIAGONAL_LEFT 2
+#define d_VERTICAL 3
+#define d_DIAGONAL_RIGHT 4 
+
+
 enum {eComp, eUser} ePlayer;	// TODO delete
 ///enum {eRound, eCross} eFigure;
 
